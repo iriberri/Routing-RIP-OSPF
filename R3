@@ -1,0 +1,113 @@
+configure terminal
+interface eth0.1
+no shutdown
+ip address 10.0.12.129/26
+no ip address 192.168.1.1/24
+
+exit
+interface eth0.2
+no shutdown
+ip address 10.0.12.194/30
+no ip address 192.168.2.1/24
+
+
+exit
+interface eth0.3
+no shutdown
+ip address 10.0.12.197/30
+no ip address 192.168.3.1/24
+
+exit
+interface wl0
+shutdown
+exit
+
+interface eth0.4
+no shutdown
+ip address 10.0.12.201/30
+no ip address 192.168.4.1/24
+
+exit
+
+
+ip route 10.0.0.0/16 10.0.12.193 1
+ip route 10.0.12.64/27 10.0.12.198 2
+ip route 10.0.12.64/27 10.0.12.202 1
+ip route 10.0.12.0/26 10.0.12.198 1
+ip route 10.0.12.0/26 10.0.12.202 2
+ip route 10.0.12.204/30 10.0.12.198 1
+ip route 10.0.12.204/30 10.0.12.202 1
+
+exit
+
+
+no ip route 10.0.0.0/16 10.0.12.193 1
+no ip route 10.0.12.64/27 10.0.12.198 2
+no ip route 10.0.12.64/27 10.0.12.202 1
+no ip route 10.0.12.0/26 10.0.12.198 1
+no ip route 10.0.12.0/26 10.0.12.202 2
+no ip route 10.0.12.204/30 10.0.12.198 1
+no ip route 10.0.12.204/30 10.0.12.202 1
+
+
+
+
+router rip
+network 10.0.12.0/24
+exit
+exit
+
+
+
+//OSPF
+
+configure terminal
+router ospf
+ospf router-id 10.12.12.3
+network 10.0.12.0/24 area 10.0.12.0
+passive-interface eth0.1
+exit
+
+
+
+router ospf
+area 10.0.12.0 stub
+exit
+
+
+
+
+
+// RIP && OSPF
+
+
+configure terminal 
+
+router rip
+network eth0.1
+passive-interface eth0.1
+network eth0.3
+network eth0.4
+redistribute ospf
+redistribute connected
+exit
+
+router ospf
+
+ospf router-id 10.12.12.3
+network 10.0.12.192/30 area 10.0.12.0
+network 10.0.12.128/26 area 10.0.12.0
+passive-interface eth0.1
+redistribute rip
+redistribute connected
+exit
+exit
+
+
+
+
+configure terminal
+router ospf 
+area 10.0.12.0 stub
+exit
+exit
